@@ -1,0 +1,109 @@
+pyarrow.Table
+work_type: string
+med_salary_min: double
+med_salary_approximate_median: double
+med_salary_max: double
+----
+work_type: [["FULL_TIME","CONTRACT","PART_TIME","INTERNSHIP","OTHER","TEMPORARY","VOLUNTEER"]]
+med_salary_min: [[10,18,10,12,52,12,null]]
+med_salary_approximate_median: [[29.223892361111112,42.5,15.847222222222223,20,75000,22.34,null]]
+med_salary_max: [[998426,200000,136908,9340,131500,54720.57,null]]
+unique job types: 7
+[<pyarrow.lib.Int64Array object at 0x127ff13c0>
+[
+  3693048656,
+  3697357588,
+  3701316486
+], <pyarrow.lib.Int64Array object at 0x1551d9480>
+[
+  3264,
+  277805,
+  38092727
+], <pyarrow.lib.DoubleArray object at 0x1551d9840>
+[
+  24.29,
+  82000,
+  200000
+], <pyarrow.lib.DoubleArray object at 0x1551d98a0>
+[
+  15,
+  26,
+  150000
+], <pyarrow.lib.DoubleArray object at 0x1551d9900>
+[
+  19.5,
+  60000,
+  139000
+], <pyarrow.lib.Int64Array object at 0x1551d9960>
+[
+  1,
+  6,
+  55
+], <pyarrow.lib.DoubleArray object at 0x1551d99c0>
+[
+  1.69e+12,
+  1.69e+12,
+  1.69e+12
+], <pyarrow.lib.Int64Array object at 0x1551d9a20>
+[
+  1,
+  1,
+  1
+], <pyarrow.lib.Int64Array object at 0x1551d9a80>
+[
+  2,
+  25,
+  189
+], <pyarrow.lib.DoubleArray object at 0x1551d9ae0>
+[
+  1.7e+12,
+  1.7e+12,
+  1.7e+12
+], <pyarrow.lib.DoubleArray object at 0x1551d9b40>
+[
+  1.69e+12,
+  1.69e+12,
+  1.69e+12
+], <pyarrow.lib.DoubleArray object at 0x1551d9ba0>
+[
+  1.69e+12,
+  1.69e+12,
+  1.69e+12
+], <pyarrow.lib.Int64Array object at 0x1551d9c00>
+[
+  0,
+  0,
+  1
+]]
+Filename: testing.py
+
+Line #    Mem usage    Increment  Occurrences   Line Contents
+=============================================================
+    67    123.6 MiB    123.6 MiB           1   @profile
+    68                                         def pyarrow_test():
+    69    278.1 MiB    154.5 MiB           1       job_data = csv.read_csv('job_postings.csv', parse_options=csv.ParseOptions(newlines_in_values=True))
+    70    278.1 MiB      0.0 MiB           1       groupted_wt = pa.TableGroupBy(job_data, "work_type")
+    71    281.8 MiB      3.7 MiB           1       salary_by_work_type = groupted_wt.aggregate([("med_salary", "min"), ("med_salary", "approximate_median"), ("med_salary", "max")])
+    72    282.1 MiB      0.3 MiB           1       print(salary_by_work_type)
+    73                                             
+    74                                             # basic plot
+    75    310.6 MiB     28.5 MiB           1       plot_med_salary(salary_by_work_type['med_salary_approximate_median'], salary_by_work_type['work_type'], 'pyarrow_med_plot.png')
+    76    310.7 MiB      0.1 MiB           1       sales_filter = (pc.field("title") == 'Sales Manager')
+    77    310.7 MiB      0.0 MiB           1       software_filter = (pc.starts_with(pc.field('title'), 'Software Engineer'))
+    78    312.4 MiB      1.7 MiB           1       sales_mgr_jobs = job_data.filter(sales_filter)
+    79    314.2 MiB      1.8 MiB           1       software_jobs = job_data.filter(software_filter)
+    80                                         
+    81    314.2 MiB      0.0 MiB           1       frames = []
+    82    314.2 MiB      0.0 MiB          11       for i in range(10):
+    83    314.2 MiB      0.0 MiB          10           frames.append(sales_mgr_jobs)
+    84    314.2 MiB      0.0 MiB          10           frames.append(software_jobs)
+    85                                         
+    86    315.1 MiB      0.8 MiB           1       comb_jobs = pa.concat_tables(frames)
+    87    378.5 MiB     63.5 MiB           1       job_data = job_data.sort_by('med_salary')
+    88    378.6 MiB      0.0 MiB           1       wt_unique = pc.count_distinct(job_data['work_type'])
+    89    378.6 MiB      0.0 MiB           1       print("unique job types:", wt_unique)
+    90    378.6 MiB      0.0 MiB          30       numeric_fields = [f.name for f in job_data.schema if not f.type.equals(pa.string())]
+    91    378.9 MiB      0.3 MiB          16       jd_quant = [pc.quantile(job_data[f], [.1, .5, 0.9], interpolation="nearest") for f in numeric_fields]
+    92    378.9 MiB      0.0 MiB           1       print(jd_quant)
+
+

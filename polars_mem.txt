@@ -1,0 +1,34 @@
+Filename: testing.py
+
+Line #    Mem usage    Increment  Occurrences   Line Contents
+=============================================================
+    36    124.7 MiB    124.7 MiB           1   @profile
+    37                                         def polars_test():
+    38    266.8 MiB    142.1 MiB           1       job_data = pl.read_csv('job_postings.csv')
+    39    271.8 MiB      4.9 MiB           2       grouped_wt = job_data.group_by("work_type").agg(
+    40    266.9 MiB      0.1 MiB           1           pl.min("med_salary").alias('min'),
+    41    266.9 MiB      0.0 MiB           1           pl.median("med_salary").alias('median'),
+    42    266.9 MiB      0.0 MiB           1           pl.max("med_salary").alias('max')
+    43                                             )
+    44    272.1 MiB      0.3 MiB           1       print(grouped_wt)
+    45                                             
+    46    302.7 MiB     30.6 MiB           1       plot_med_salary(grouped_wt['median'], grouped_wt['work_type'], 'polars_med_plot.png')
+    47                                             
+    48                                         
+    49    304.6 MiB      1.9 MiB           1       sales_mgr_jobs = job_data.filter(pl.col("title") == 'Sales Manager')
+    50    307.4 MiB      2.8 MiB           1       software_jobs = job_data.filter(pl.col('title').str.starts_with('Software Engineer'))
+    51                                         
+    52    307.4 MiB      0.0 MiB           1       combined = sales_mgr_jobs
+    53    320.0 MiB      0.0 MiB          11       for _ in range(10):
+    54    320.0 MiB     12.5 MiB          10           combined.vstack(sales_mgr_jobs, in_place=True)
+    55    320.0 MiB      0.1 MiB          10           combined.vstack(software_jobs, in_place=True)
+    56                                         
+    57    584.4 MiB    264.4 MiB           1       job_data = job_data.sort("med_salary")
+    58    584.5 MiB      0.1 MiB           1       wt_unique = job_data.n_unique(subset=['work_type'])
+    59    584.5 MiB      0.0 MiB           1       print("unique job types:", wt_unique)
+    60    585.0 MiB      0.5 MiB           1       jd_quant_1 = job_data.quantile(.1, 'nearest')
+    61    585.6 MiB      0.6 MiB           1       jd_quant_5 = job_data.quantile(.5, 'nearest')
+    62    586.0 MiB      0.4 MiB           1       jd_quant_9 = job_data.quantile(.9, 'nearest')
+    63    586.0 MiB      0.0 MiB           1       print(jd_quant_1, jd_quant_5, jd_quant_9)
+
+

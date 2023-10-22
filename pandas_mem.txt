@@ -1,0 +1,33 @@
+Filename: testing.py
+
+Line #    Mem usage    Increment  Occurrences   Line Contents
+=============================================================
+     8    123.7 MiB    123.7 MiB           1   @profile
+     9                                         def pandas_test():
+    10                                             # loading and basic stats
+    11    249.4 MiB    125.7 MiB           1       job_data = pd.read_csv('job_postings.csv')
+    12    249.5 MiB      0.1 MiB           1       grouped_wt = job_data.groupby(by='work_type')['med_salary']
+    13    249.9 MiB      0.4 MiB           1       salary_by_work_type = grouped_wt.agg(['min', 'median', 'max']).reset_index()
+    14    250.2 MiB      0.2 MiB           1       print(salary_by_work_type)
+    15                                             
+    16                                             # basic plot
+    17    277.3 MiB     27.1 MiB           1       plot_med_salary(salary_by_work_type['median'], salary_by_work_type['work_type'], 'pandas_med_plot.png')
+    18                                             
+    19                                             # combining data test
+    20    277.4 MiB      0.1 MiB           1       sales_mgr_jobs = job_data[job_data['title'] == 'Sales Manager']
+    21    277.4 MiB      0.0 MiB           1       software_jobs = job_data[job_data['title'].str.startswith('Software Engineer')]
+    22    277.4 MiB      0.0 MiB           1       frames = []
+    23    277.4 MiB      0.0 MiB          11       for i in range(10):
+    24    277.4 MiB      0.0 MiB          10           frames.append(sales_mgr_jobs)
+    25    277.4 MiB      0.0 MiB          10           frames.append(software_jobs)
+    26                                         
+    27    277.9 MiB      0.5 MiB           1       comb_jobs = pd.concat(frames)
+    28                                         
+    29                                             # misc windows and sorts
+    30    278.0 MiB      0.0 MiB           1       job_data = job_data.sort_values('med_salary')
+    31    278.0 MiB      0.0 MiB           1       wt_unique = job_data['work_type'].nunique()
+    32    278.0 MiB      0.0 MiB           1       print("unique job types:", wt_unique)
+    33    281.6 MiB      3.6 MiB           1       jd_quant = job_data.quantile([.1, .5, 0.9], method="table", interpolation="nearest")
+    34    281.6 MiB      0.0 MiB           1       print(jd_quant)
+
+
